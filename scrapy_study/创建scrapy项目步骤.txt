@@ -1,0 +1,56 @@
+1.在pycharm里面的terminal里面
+2.输入scrapy startproject module 	 （module为项目名称）
+
+scrapy.cfg: 项目的配置文件。
+module/: 该项目的python模块。之后您将在此加入代码。
+module/items.py: 项目中的item文件。
+module/pipelines.py: 项目中的pipelines文件。
+module/settings.py: 项目的设置文件。
+module/spiders/: 放置spider代码的目录。
+
+
+修改setting文件
+1.ROBOTSTXT_OBEY = true改为false
+2.在DEFAULT_REQUEST_HEADERS里面添加User-Agent
+
+在spiders中创建名称为qsbk_spider的py文件，qiushibaike.com为网页的域名
+scrapy genspider qsbk_spider "qiushibaike.com"
+
+数据处理在pipelines中
+用yield infor 吧信息给调度器，调度器再给pipelines
+在setting中取消ITEM_PIPELINES的注释，后面的数字表示该pipelines的优先级，越小优先级越高
+
+在items中写好定义的数据模型
+
+当使用外部包时出现ModuleNotFoundError:，可以删除该外部抱同级下的__init__.py文件
+
+创建CrawlSpider爬虫
+scrapy startproject wxapp
+scrapy genspider -t crawl [爬虫名字][域名]
+
+
+scrapy shell 网页  可以验证数据是否正确
+
+
+redis分布式爬虫:
+在项目所在目录下进入cmd，输入pip freeze > requirements.txt 导出项目所用到的所有的包
+
+把项目改成分布式爬虫步骤：
+    1.把spiders下的爬虫那个类继承为（from scrapy_redis.spiders import RedisSpider）
+    2.删除start_urls 增加一个redis_key="XXX"（意思是去redis里面寻找key） eg redis_key="fang:start_urls"
+    3.在配置文件中修改：
+        SCHEDULER="scrapy_redis.scheduler.Scheduler"
+        DUPEFILTER_CLASS="scrapy_redis.duperfilter.REPDuperFilter"
+        ITEM_PIPELINES={
+                    'scrapy_redis.pipelines.RedisPipeline':300
+                }
+        SCHEDULER_PERSIST=True
+
+        REDIS_HOST='127.0.0.1'
+        REDIS_PORT=6379
+    4.然后打包发到ubuntu中(要删除掉requirements.txt文件)
+            unzip fang.zip 解压文件
+    5.运行爬虫
+        在爬虫服务器上进入到文件所在路径，输入命令scrapy runspider 【爬虫名字】
+        在redis服务器上，推入一个开始的url链接
+                redis-cli > lpush [redis_key] start_urls

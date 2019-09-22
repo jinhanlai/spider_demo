@@ -8,7 +8,9 @@
 2.修改setting文件：
 	ROBOTSTXT_OBEY = true改为false
 	DEFAULT_REQUEST_HEADERS里面添加User-Agent
-	
+3.启动scrapy
+    创建一个start.py文件 ，在里面写入 cmdline.execute("scrapy crawl jianshu_spider".split()) #jianshu_spider为爬虫名字
+    或者在命令行中输入scrapy crawl jianshu_spider
 scrapy shell 网页  里面可以使用xpath语法这些，判断验证数据是否正确
 	
 
